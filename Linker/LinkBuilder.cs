@@ -28,6 +28,60 @@ namespace Linker
         /// </summary>
         private Link<TSource, TTarget> Link { get; } = new Link<TSource, TTarget>();
 
+        public LinkBuilder<TSource, TTarget> Parse(string toParse, LinkMode mode = LinkMode.TwoWay)
+        {
+            toParse = toParse.Replace("{", string.Empty).Replace("}", string.Empty);
+            var bindingOperator = toParse.Split(" ").First();
+
+            var availableOperators = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(
+                i => (i.Namespace?.Equals("Linker.Operators_Parsers") ?? false)
+                     && i.GetCustomAttribute<ParserAttribute>() is ParserAttribute parserAttribute && string.Equals(
+                         parserAttribute.Operation,
+                         bindingOperator,
+                         StringComparison.InvariantCultureIgnoreCase));
+
+            if (availableOperators == null)
+            {
+                throw new InvalidOperationException(
+                    $"Could not find an operator parser for operation type {bindingOperator}");
+            }
+
+            var operatorInstance =
+                Activator.CreateInstance(MakeGenericType(availableOperators, typeof(TSource), typeof(TTarget)));
+
+            operatorInstance.GetType().GetMethod("Parse").Invoke(operatorInstance, new object[] { toParse, mode, this });
+
+            return this;
+        }
+
+        /// <summary>
+        /// The make generic type.
+        /// </summary>
+        /// <param name="definition">
+        /// The definition.
+        /// </param>
+        /// <param name="parameter">
+        /// The parameter.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Type"/>.
+        /// </returns>
+        private static Type MakeGenericType(Type definition, params Type[] parameter)
+        {
+            var definitionStack = new Stack<Type>();
+            var type = definition;
+            while (!type.IsGenericTypeDefinition)
+            {
+                definitionStack.Push(type.GetGenericTypeDefinition());
+                type = type.GetGenericArguments()[0];
+            }
+
+            type = type.MakeGenericType(parameter);
+            while (definitionStack.Count > 0)
+                type = definitionStack.Pop().MakeGenericType(type);
+            return type;
+        }
+
         /// <summary>
         ///     Build and enable the Link instance.
         /// </summary>
@@ -38,6 +92,21 @@ namespace Linker
         {
             this.Link.IsEnabled = true;
             return this.Link;
+        }
+
+        public LinkBuilder<TSource, TTarget> Map(
+            PropertyInfo sourceProp,
+            PropertyInfo targetProp,
+            LinkMode mode = LinkMode.TwoWay)
+        {
+            this.Link.Mappers.Add(
+                new Mapping<TSource, TTarget>(
+                    sourceProp,
+                    targetProp,
+                    this.Link,
+                    mode,
+                    false));
+            return this;
         }
 
         public LinkBuilder<TSource, TTarget> Map<TProperty>(
