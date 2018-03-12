@@ -11,8 +11,11 @@ namespace Linker
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+
+    using Linker.Annotations;
 
     /// <summary>
     ///     The link builder.
@@ -115,11 +118,12 @@ namespace Linker
             LinkMode mode = LinkMode.TwoWay)
         {
             this.Link.Mappers.Add(
-                new Mapper<TSource, TTarget>(
+                new Mapping<TSource, TTarget>(
                     CheckIfValid(sourcePropertyLambda, typeof(TSource)),
                     CheckIfValid(targetPropertyLambda, typeof(TTarget)),
                     this.Link,
-                    mode));
+                    mode,
+                    false));
             return this;
         }
 
@@ -135,8 +139,24 @@ namespace Linker
         public LinkBuilder<TSource, TTarget> MapAll(LinkMode mode = LinkMode.TwoWay)
         {
             foreach (var propertyInfo in typeof(TSource).GetProperties(BindingFlags.Instance | BindingFlags.Public))
-                this.Link.Mappers.Add(new Mapper<TSource, TTarget>(propertyInfo, propertyInfo, this.Link, mode));
+                this.Link.Mappers.Add(
+                    new Mapping<TSource, TTarget>(propertyInfo, propertyInfo, this.Link, mode, false));
 
+            return this;
+        }
+
+        /// <summary>
+        /// The context object used on context bindings.
+        /// </summary>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <returns>
+        /// The <see cref="LinkBuilder"/>.
+        /// </returns>
+        public LinkBuilder<TSource, TTarget> WithContext(object context)
+        {
+            this.Link.Context = context;
             return this;
         }
 

@@ -1,9 +1,9 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Mapper.cs" company="">
+// <copyright file="Mapping.cs" company="">
 //   
 // </copyright>
 // <summary>
-//   Defines the Mapper type.
+//   Defines the Mapping type.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -19,10 +19,10 @@ namespace Linker
     /// </typeparam>
     /// <typeparam name="TTarget">
     /// </typeparam>
-    public class Mapper<TSource, TTarget>
+    public class Mapping<TSource, TTarget>
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Mapper{TSource,TTarget}" /> class.
+        ///     Initializes a new instance of the <see cref="Mapping{TSource,TTarget}" /> class.
         /// </summary>
         /// <param name="sourcePropertyInfo">
         ///     The source property info.
@@ -36,17 +36,24 @@ namespace Linker
         /// <param name="mode">
         ///     The mode.
         /// </param>
-        public Mapper(
+        public Mapping(
             PropertyInfo sourcePropertyInfo,
             PropertyInfo targetPropertyInfo,
             Link<TSource, TTarget> parentLink,
-            LinkMode mode)
+            LinkMode mode,
+            bool isContextBinding)
         {
             this.SourcePropertyInfo = sourcePropertyInfo ?? throw new ArgumentNullException(nameof(sourcePropertyInfo));
             this.TargetPropertyInfo = targetPropertyInfo ?? throw new ArgumentNullException(nameof(targetPropertyInfo));
             this.ParentLink = parentLink ?? throw new ArgumentNullException(nameof(parentLink));
             this.Mode = mode;
+            this.IsContextBinding = isContextBinding;
         }
+
+        /// <summary>
+        /// Gets a value indicating whether this is mapping a context binding.
+        /// </summary>
+        public bool IsContextBinding { get; }
 
         /// <summary>
         ///     Gets the mode.

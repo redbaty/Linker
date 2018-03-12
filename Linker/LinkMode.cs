@@ -22,6 +22,11 @@ namespace Linker
         /// <summary>
         ///     The source and the targets are always in sync.
         /// </summary>
-        TwoWay
+        TwoWay,
+
+        /// <summary>
+        ///     The targets are read-only.
+        /// </summary>
+        OneWayReverse
     }
 }

@@ -6,8 +6,10 @@
         {
             var x = new Person();
             var y = new Person();
-            var builder = new LinkBuilder<Person, Person>().WithSource(x).WithTarget(y)
-                .Map(i => i.LastName, i => i.FirstName).Build();
+            var builder = new LinkBuilder<Person, Person>()
+                .Parse("{Binding FirstName}", LinkMode.OneWay)
+                .WithSource(x)
+                .WithTarget(y).Build();
 
             x.FirstName = "Hello";
             y.FirstName = "Fak";

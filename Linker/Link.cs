@@ -30,6 +30,8 @@ namespace Linker
             this.Targets.CollectionChanged += this.TargetsOnCollectionChanged;
         }
 
+        public object Context { get; set; }
+
         /// <summary>
         ///     Gets or sets a value indicating whether is enabled.
         /// </summary>
@@ -38,7 +40,7 @@ namespace Linker
         /// <summary>
         ///     Gets the mappers.
         /// </summary>
-        public List<Mapper<TSource, TTarget>> Mappers { get; } = new List<Mapper<TSource, TTarget>>();
+        public List<Mapping<TSource, TTarget>> Mappers { get; } = new List<Mapping<TSource, TTarget>>();
 
         /// <summary>
         ///     Gets or sets the source.
@@ -67,30 +69,30 @@ namespace Linker
         /// <param name="target">
         ///     The object that is calling this update.
         /// </param>
-        /// <param name="mapper">
-        ///     The mapper that represents the relationship.
+        /// <param name="mapping">
+        ///     The mapping that represents the relationship.
         /// </param>
-        public void UpdateSource(object target, Mapper<TSource, TTarget> mapper)
+        public void UpdateSource(object target, Mapping<TSource, TTarget> mapping)
         {
-            if (mapper == null || mapper.Mode == LinkMode.OneWay) return;
+            if (mapping == null || mapping.Mode == LinkMode.OneWay) return;
 
             this.IsEnabled = false;
-            mapper.SourcePropertyInfo.SetValue(this.Source, mapper.TargetPropertyInfo.GetValue(target));
+            mapping.SourcePropertyInfo.SetValue(this.Source, mapping.TargetPropertyInfo.GetValue(target));
             this.IsEnabled = true;
         }
 
         /// <summary>
         ///     Updates all the targets based on the source.
         /// </summary>
-        /// <param name="mapper">
-        ///     The mapper that represents the relationship.
+        /// <param name="mapping">
+        ///     The mapping that represents the relationship.
         /// </param>
-        public void UpdateTargets(Mapper<TSource, TTarget> mapper)
+        public void UpdateTargets(Mapping<TSource, TTarget> mapping)
         {
-            if (mapper == null) return;
+            if (mapping == null || mapping.Mode == LinkMode.OneWayReverse) return;
 
             foreach (var target in this.Targets)
-                mapper.TargetPropertyInfo.SetValue(target, mapper.SourcePropertyInfo.GetValue(this.Source));
+                mapping.TargetPropertyInfo.SetValue(target, mapping.SourcePropertyInfo.GetValue(this.Source));
         }
 
         /// <summary>
