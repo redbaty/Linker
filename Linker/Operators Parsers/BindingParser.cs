@@ -37,7 +37,7 @@ namespace Linker.Operators_Parsers
         /// </param>
         public void Parse(string fullCall, LinkMode mode, LinkBuilder<TSource, TTarget> builder)
         {
-            var propertyPath = fullCall.Split(" ").Last();
+            var propertyPath = fullCall.Split(' ').Last();
             var prop = typeof(TTarget).GetProperty(propertyPath);
 
             builder.Map(prop, prop, mode);

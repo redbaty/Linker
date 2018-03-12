@@ -34,7 +34,7 @@ namespace Linker
         public LinkBuilder<TSource, TTarget> Parse(string toParse, LinkMode mode = LinkMode.TwoWay)
         {
             toParse = toParse.Replace("{", string.Empty).Replace("}", string.Empty);
-            var bindingOperator = toParse.Split(" ").First();
+            var bindingOperator = toParse.Split(' ').First();
 
             var availableOperators = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(
                 i => (i.Namespace?.Equals("Linker.Operators_Parsers") ?? false)
